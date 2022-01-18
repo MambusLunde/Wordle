@@ -1,0 +1,92 @@
+#%%
+import english_words
+# %%
+def find_guess(words, occurence_dict, booleanList):
+    best_guess = ''
+    best_score = 0
+    for word in words:
+        current_score = 0
+        wordset = wordSet(word, booleanList)
+        for letter in wordset:
+            if letter in set(occurence_dict.keys()):
+                current_score = current_score + occurence_dict[letter]
+        if current_score > best_score:
+            best_guess = word
+            best_score = current_score
+    return best_guess
+
+# %%
+def update_dict(words, booleanList):
+    occurence_dict = {'a':0, 'b':0, 'c':0, 'd':0, 'e':0, 'f':0, 'g':0, 'h':0, 'i':0, 'j':0, 'k':0, 'l':0, 'm':0, 'n':0, 'o':0, 'p':0, 'q':0, 'r':0, 's':0, 't':0, 'u':0, 'v':0, 'w':0, 'x':0, 'y':0, 'z':0}
+    for word in words:
+        wordset = wordSet(word, booleanList)
+        for letter in wordset:
+            if letter in set(occurence_dict.keys()):
+                occurence_dict[letter] = occurence_dict[letter] + 1
+    return occurence_dict
+
+# %%
+def update_list(words, guess, reply, booleanList):
+    removeWords = set()
+    for index, flag in enumerate(booleanList):
+        if flag == True:
+            if reply[index] == "2":
+                correctLetter = guess[index]
+                for word in words:
+                    if word[index] != correctLetter:
+                        removeWords.add(word)
+                booleanList[index] = False
+    for index,number in enumerate(reply):
+        if number == "1":
+            letter = guess[index]
+            for word in words:
+                if letter not in set(word):
+                    removeWords.add(word)
+                if word[index] == letter:
+                    removeWords.add(word)
+    for index,number in enumerate(reply):
+        if number == "0":
+            letter = guess[index]
+            for word in words:
+                if letter in wordSet(word, booleanList):
+                    removeWords.add(word)
+    
+    return words - removeWords, booleanList
+# %%
+def wordSet(word, booleanList):
+    wordset = set()
+    for index, element in enumerate(booleanList):
+        if element == True:
+            wordset.add(word[index])
+    return wordset
+# %%
+def play(answer=""):
+    words = english_words.english_words_lower_alpha_set
+    words = set([word for word in words if len(word)==5])
+    booleanList = [True, True, True, True, True]
+    stringList = ["First", "Second", "Third", "Fourth", "Fifth", "Sixth"]
+    for attempt in range(6):
+        if attempt == 0:
+            current_dict = update_dict(words, booleanList)
+            guess = find_guess(words,current_dict,booleanList)
+        else:
+            if len(answer) == 5:
+                reply = getReply(answer, guess)
+            else:
+                reply = input(f"What was the reply to {guess}?")
+            if reply == "22222":
+                print("Congratulations!")
+                return
+            words, booleanList = update_list(words, guess, reply, booleanList)
+            current_dict = update_dict(words, booleanList)
+            guess = find_guess(words,current_dict,booleanList)
+        print(f"{stringList[attempt]} guess is: {guess}")
+
+# %%
+def getReply(answer, guess):
+    reply = ""
+    for index,letter in enumerate(guess):
+        if answer[index] == letter: reply += "2"
+        elif letter in set(answer): reply += "1"
+        else: reply += "0"
+    return reply
