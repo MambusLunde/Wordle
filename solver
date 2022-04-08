@@ -134,9 +134,10 @@ def play(answer: str="", verbose: bool=True) -> int:
             else:
                 reply = input(f"What was the reply to {guess}?")
             words, booleanList = update_list(words, guess, reply, booleanList)
+            if verbose: print(f"There are {len(words)} words left to guess from.")
             current_dict = update_dict(words, booleanList)
             guess = find_guess(words,current_dict,booleanList, index_dict)
-        if verbose: print(f"{stringList[attempt]} guess is: {guess}")
+        if verbose: print(f"{stringList[attempt]} guess is: {guess}.")
         if guess == answer:
             if verbose: print(f"Congratulations! You used {attempt + 1} guesses.")
             return attempt+1
@@ -171,4 +172,6 @@ def indexMatchingDictionary(words: str, booleanList: list[bool])->dict:
                 index_dictionary[letter][index] += 1
 
     return index_dictionary
+# %%
+
 # %%
